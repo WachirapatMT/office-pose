@@ -1,0 +1,5 @@
+wheel
+opencv-python==4.1.0.25
+openpifpaf==0.10.0
+fastdtw==0.3.4
+scipy==1.4.1
