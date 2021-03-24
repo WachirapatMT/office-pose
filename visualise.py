@@ -197,9 +197,4 @@ def image_pose(image_path='one_leg_l.png'):
 
 if __name__ == '__main__':
     image_pose()
-    # originalImage = cv2.imread('neck_bend_r.png')
-    # flipImage = cv2.flip(originalImage, 1)
-    # cv2.imshow('flip', flipImage)
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
     # cv2.imwrite('neck_bend_l.png', flipImage)
