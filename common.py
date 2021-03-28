@@ -58,9 +58,19 @@ def normalise(all_coordinates: List) -> List:
         ]
 
         # Step 2: Scale
-        dist = math.hypot(coordinates[CocoPart.LShoulder.value][0] - coordinates[CocoPart.RShoulder.value][0],
+        # dist = math.hypot(coordinates[CocoPart.LShoulder.value][0] - coordinates[CocoPart.RShoulder.value][0],
+        #                   coordinates[CocoPart.LShoulder.value][1] - coordinates[CocoPart.RShoulder.value][1])
+
+        distX = math.hypot(coordinates[CocoPart.LShoulder.value][0] - coordinates[CocoPart.RShoulder.value][0],
                           coordinates[CocoPart.LShoulder.value][1] - coordinates[CocoPart.RShoulder.value][1])
-        coordinates = [[coordinate[0] / dist, coordinate[1] / dist] for coordinate in coordinates]
+        distY = (math.hypot(coordinates[CocoPart.LShoulder.value][0] - coordinates[CocoPart.LHip.value][0],
+                          coordinates[CocoPart.LShoulder.value][1] - coordinates[CocoPart.LHip.value][1]) + 
+                 math.hypot(coordinates[CocoPart.RShoulder.value][0] - coordinates[CocoPart.RHip.value][0],
+                          coordinates[CocoPart.RShoulder.value][1] - coordinates[CocoPart.RHip.value][1])) / 2
+        if distX > 0 and distY > 0:                  
+            coordinates = [[coordinate[0] / distX, coordinate[1] * 2 / distY] for coordinate in coordinates]
+        elif distY == 0:
+            coordinates = [[coordinate[0] / distX, coordinate[1] / distX] for coordinate in coordinates]
 
         norm_coords.append(coordinates)
 
@@ -69,6 +79,7 @@ def normalise(all_coordinates: List) -> List:
 def visualise(img: np.ndarray, keypoint_sets: List, width: int, height: int, tranX=0, tranY=0, vis_keypoints: bool = True,
               vis_skeleton: bool = False) -> np.ndarray:
     """Draw keypoints/skeleton on the output video frame."""
+    if len(keypoint_sets) == 0: return img
     if vis_keypoints or vis_skeleton:
         coords = keypoint_sets[0]
         if vis_skeleton:
