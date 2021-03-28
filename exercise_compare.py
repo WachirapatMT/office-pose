@@ -2,6 +2,7 @@ import argparse
 import base64
 import csv
 import time
+import os
 
 from typing import List
 from itertools import chain
@@ -83,10 +84,13 @@ def cli():
 
 
 def main():
+    score = 10
+    task_finish = 0
     args = cli()
 
     # Get exercise keypoints
     exercise = EXERCISE[args.exercise]
+    exercise_img = cv2.imread(os.path.join("exercise_images", f"{args.exercise}.png"))
 
     # Video source
     if args.video is None:
@@ -101,6 +105,7 @@ def main():
 
     ret_val, img = cam.read()
     height, width = img.shape[:2]
+    exercise_img = cv2.resize(exercise_img, img.shape[:2][::-1])
 
     # Resize image to multiple of 16 due to some unknown convention
     width_height = (
@@ -120,14 +125,13 @@ def main():
         frame += 1
 
         ret_val, img = cam.read()
-        if img is None:
-            break
-        if not ret_val:
-            task_finished = True
+
+        if not ret_val or img is None:
             continue
 
         # Press `esc` to exit
-        if cv2.waitKey(1) == 27:
+        if task_finish == 3 or cv2.waitKey(1) == 27:
+            cv2.destroyAllWindows()
             end = time.time()
             print(f"FPS: {frame/(end-start)}")
             break
@@ -184,12 +188,21 @@ def main():
 
             # Show similarity score on image
             score = euclidean(list(chain(*my_pose[0])), list(chain(*exercise_pose[0])))
-            img = write_on_image(img=img, text=str(score), color=[0, 0, 0])
+            if score < 0.25:
+                task_finish += 1
+                if task_finish == 3:
+                    score = "Correct"
+            else:
+                task_finish = 0
 
         except Exception as err:
             print("Error:", err)
             pass
 
+        # Add image to the side
+        img = np.hstack((exercise_img, img))
+
+        img = write_on_image(img=img, text=f"{task_finish} - {score}", color=[0, 0, 0])
         cv2.imshow("My Pose", img)
 
 
