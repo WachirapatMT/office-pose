@@ -185,15 +185,22 @@ def main():
                     vis_skeleton=True,
                 )
             ###############
-
+            
+            weight_list = list(map(lambda x: [1,1] if x[2] >= 1e-5 else [0,0],keypoint_sets[0]))
+            normalize_weight = list(chain(*weight_list)).count(1)
+            print(normalize_weight)
             # Show similarity score on image
-            score = euclidean(list(chain(*my_pose[0])), list(chain(*exercise_pose[0])))
-            if score < 0.25:
-                task_finish += 1
-                if task_finish == 3:
-                    score = "Correct"
-            else:
-                task_finish = 0
+            #score with no ommit keypoint
+            # score = euclidean(list(chain(*my_pose[0])), list(chain(*exercise_pose[0]))) 
+            #score with ommited keypoint
+            score = euclidean(list(chain(*my_pose[0])), list(chain(*exercise_pose[0])),list(chain(*weight_list)))/ (normalize_weight if normalize_weight!=0 else 1)
+            print("test")
+            # if score < 0.25:
+            #     task_finish += 1
+            #     if task_finish == 3:
+            #         score = "Correct"
+            # else:
+            #     task_finish = 0
 
         except Exception as err:
             print("Error:", err)
