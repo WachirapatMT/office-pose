@@ -188,6 +188,8 @@ def main():
 
             # Show similarity score on image
             score = euclidean(list(chain(*my_pose[0])), list(chain(*exercise_pose[0])))
+            max_score = euclidean([0]*len(list(chain(*exercise_pose[0]))), list(chain(*exercise_pose[0])))
+            adjusted_score = 10*(1-(score/max_score)**0.5)
             if score < 0.25:
                 task_finish += 1
                 if task_finish == 3:
@@ -202,7 +204,7 @@ def main():
         # Add image to the side
         img = np.hstack((exercise_img, img))
 
-        img = write_on_image(img=img, text=f"{task_finish} - {score}", color=[0, 0, 0])
+        img = write_on_image(img=img, text=f"{task_finish} - {score} - {adjusted_score}", color=[0, 0, 0])
         cv2.imshow("My Pose", img)
 
 
