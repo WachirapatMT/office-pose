@@ -93,8 +93,11 @@ def visualise(img: np.ndarray, keypoint_sets: List, width: int, height: int, tra
             for i, kps in enumerate(coords):
                 # Scale up joint coordinate
                 p = (int(kps[0] * width), int(kps[1] * height))
+                print("out2")
                 # Joint wasn't detected
                 if p == (0, 0):
+                # if c <= 1e-5 :
+                    print("out")
                     continue
                 cv2.circle(img=img, center=p, radius=5, color=(255, 255, 255), thickness=-1)
 
