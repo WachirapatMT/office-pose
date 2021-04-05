@@ -136,6 +136,6 @@ EXERCISE = {
     "one_leg_left": ONE_LEG_LEFT,
     "one_leg_right": ONE_LEG_RIGHT,
     "neck_bend_left": NECK_BEND_LEFT,
-    "nect_bend_right": NECK_BEND_RIGHT,
+    "neck_bend_right": NECK_BEND_RIGHT,
 }
 
