@@ -53,7 +53,7 @@ class Application(tk.Frame):
         )
         self.exercise_img = cv2.cvtColor(self.exercise_img, cv2.COLOR_BGR2RGB)
         self.exercise_img = cv2.resize(
-            self.exercise_img,Z
+            self.exercise_img,
             (self.exercise_img.shape[1] * HEIGHT // self.exercise_img.shape[0], HEIGHT),
         )
         self.exercise_canvas = tk.Canvas(self, width=WIDTH, height=HEIGHT, bg="#cccccc")
