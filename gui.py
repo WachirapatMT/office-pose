@@ -14,7 +14,6 @@ root.geometry("1400x650")
 container = tk.Frame(root)
 container.pack(side="top", fill="both", expand=True)
 
-args = cli()
 app = Application(master=root, args=cli())
 app.place(in_=container, x=0, y=0, relwidth=1, relheight=1)
 
@@ -49,12 +48,43 @@ def onFreePlay():
     app.lift()
 
 
+def onShowSkeleton():
+    app.setShowSkeleton(showSkeleton.get())
+
+def onShowJoint():
+    app.setShowJoint(showJoint.get())
+
+
 ########## App ##########
 backButton = HoverButton(app, text="Back", padx=10, pady=2, command=onBack, font="14")
 backButton.place(relx=0.5, y=610, anchor=tk.CENTER)
 
 app.scoreLabel = scoreLabel = tk.Label(app, text="Loading...", font="Helvetica 18 bold")
 scoreLabel.place(relx=0.5, y=550, anchor=tk.CENTER)
+
+showSkeleton = tk.IntVar()
+skeletonCheckBox = tk.Checkbutton(
+    app,
+    text="Show Skeleton",
+    variable=showSkeleton,
+    onvalue=1,
+    offvalue=0,
+    command=onShowSkeleton,
+    font="Helvetica 10 bold",
+)
+skeletonCheckBox.place(x=1385, y=640, anchor=tk.SE)
+
+showJoint = tk.IntVar()
+jointCheckBox = tk.Checkbutton(
+    app,
+    text="Show Joint",
+    variable=showJoint,
+    onvalue=1,
+    offvalue=0,
+    command=onShowJoint,
+    font="Helvetica 10 bold",
+)
+jointCheckBox.place(x=1255, y=640, anchor=tk.SE)
 
 ######### Main ##########
 mainLabel = tk.Label(mainPage, text="Welcome to Office Pose!", font="Helvetica 26 bold")

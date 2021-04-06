@@ -156,3 +156,9 @@ class Application(tk.Frame):
             self.canvas.itemconfig(self.img_on_canvas, image=self.photo)
 
         self._job = self.after(1000 // 24, self.update)
+
+    def setShowSkeleton(self, isShow):
+        self.args.skeleton = isShow
+
+    def setShowJoint(self, isShow):
+        self.args.joints = isShow
