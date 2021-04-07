@@ -71,7 +71,8 @@ def normalise(all_coordinates: List) -> List:
             coordinates = [[coordinate[0] / distX, coordinate[1] * 2 / distY] for coordinate in coordinates]
         elif distY == 0:
             coordinates = [[coordinate[0] / distX, coordinate[1] / distX] for coordinate in coordinates]
-
+        elif distX == 0:
+            coordinates = [[coordinate[0] * 2 / distY, coordinate[1] * 2 / distY] for coordinate in coordinates]
         norm_coords.append(coordinates)
 
     return norm_coords
