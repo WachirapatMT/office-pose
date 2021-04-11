@@ -19,6 +19,7 @@ SIDE_BEND_LEFT = [
         [0.45762032, 0.896492, 0.7711897],
     ]
 ]
+SIDE_BEND_LEFT_weight = [[1,1]]*17
 
 SIDE_BEND_RIGHT = [
     [
@@ -137,5 +138,9 @@ EXERCISE = {
     "one_leg_right": ONE_LEG_RIGHT,
     "neck_bend_left": NECK_BEND_LEFT,
     "nect_bend_right": NECK_BEND_RIGHT,
+}
+
+EXERCISE_WEIGHT = {
+    "side_bend_left": SIDE_BEND_LEFT_weight
 }
 

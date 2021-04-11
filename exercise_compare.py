@@ -15,7 +15,7 @@ from scipy.spatial.distance import euclidean
 
 from common import CocoPart, SKELETON_CONNECTIONS, write_on_image, visualise, normalise
 from processor import Processor
-from exercise import EXERCISE
+from exercise import EXERCISE, EXERCISE_WEIGHT
 
 
 def cli():
@@ -186,15 +186,22 @@ def main():
                 )
             ###############
             
-            weight_list = list(map(lambda x: [1,1] if x[2] >= 1e-5 else [0,0],keypoint_sets[0]))
-            normalize_weight = list(chain(*weight_list)).count(1)
-            print(normalize_weight)
+            #set weight for missing keypoint to have greater values to tell user to show that keypoint
+            miss_weight_list = list(map(lambda x: [1,1] if x[2] >= 1e-5 else [10,10],keypoint_sets[0]))
+            #TODO
+            #get weight list for each pose
+            pose_weight_list = list()
+            pose_weight_list = [[1,1]]*17
+            pose_weight_list = EXERCISE_WEIGHT[args.exercise]
+            # print(pose_weight_list)
+            weight_list = list(a*b for (a,b) in zip(list(chain(*miss_weight_list)),list(chain(*pose_weight_list))))
+            normalize_weight = weight_list.count(1)
             # Show similarity score on image
             #score with no ommit keypoint
             # score = euclidean(list(chain(*my_pose[0])), list(chain(*exercise_pose[0]))) 
             #score with ommited keypoint
-            score = euclidean(list(chain(*my_pose[0])), list(chain(*exercise_pose[0])),list(chain(*weight_list)))/ (normalize_weight if normalize_weight!=0 else 1)
-            print("test")
+            score = euclidean(list(chain(*my_pose[0])), list(chain(*exercise_pose[0])),list(weight_list))/ (normalize_weight if normalize_weight!=0 else 1)
+            # print("test")
             # if score < 0.25:
             #     task_finish += 1
             #     if task_finish == 3:
