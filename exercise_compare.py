@@ -186,15 +186,15 @@ def main():
                 )
             ###############
             
-            weight_list = list(map(lambda x: [1,1] if x[2] >= 1e-5 else [0,0],keypoint_sets[0]))
-            normalize_weight = list(chain(*weight_list)).count(1)
+            weight_list = list(map(lambda x: [x[2],x[2]] if x[2] <= 1 else [1,1],exercise[0]))
+            normalize_weight = sum(list(chain(*weight_list)))
             print(normalize_weight)
             # Show similarity score on image
             #score with no ommit keypoint
             # score = euclidean(list(chain(*my_pose[0])), list(chain(*exercise_pose[0]))) 
             #score with ommited keypoint
-            score = euclidean(list(chain(*my_pose[0])), list(chain(*exercise_pose[0])),list(chain(*weight_list)))/ (normalize_weight if normalize_weight!=0 else 1)
-            max_score = euclidean([0]*len(list(chain(*exercise_pose[0]))), list(chain(*exercise_pose[0])),list(chain(*weight_list)))/ (normalize_weight if normalize_weight!=0 else 1)
+            score = euclidean(list(chain(*my_pose_norm[0])), list(chain(*exercise_pose_norm[0])),list(chain(*weight_list)))/ (normalize_weight if normalize_weight!=0 else 1)
+            max_score = euclidean([0]*len(list(chain(*exercise_pose_norm[0]))), list(chain(*exercise_pose_norm[0])),list(chain(*weight_list)))/ (normalize_weight if normalize_weight!=0 else 1)
             adjusted_score = 10*(1-(score/max_score)**0.75)
             print("test")
             # if score < 0.25:
