@@ -37,7 +37,7 @@ def cli():
             "Will be rounded to multiples of 16."
         ),
     )
-    parser.add_argument("--video", default=None, type=str, help="Video source")
+    parser.add_argument("--video", default="0", type=str, help="Video source")
     parser.add_argument(
         "--exercise",
         default="side_bend_left",
@@ -93,7 +93,7 @@ def main():
     exercise_img = cv2.imread(os.path.join("exercise_images", f"{args.exercise}.png"))
 
     # Video source
-    if args.video is None:
+    if args.video == "0":
         print("Video source: default webcam")
         cam = cv2.VideoCapture(0)
     elif args.video == "1":
