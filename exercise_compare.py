@@ -190,18 +190,23 @@ def main():
             miss_weight_list = list(map(lambda x: [1,1] if x[2] >= 1e-5 else [10,10],keypoint_sets[0]))
             #TODO
             #get weight list for each pose
-            pose_weight_list = list()
-            pose_weight_list = [[1,1]]*17
-            pose_weight_list = EXERCISE_WEIGHT[args.exercise]
+            pose_weight_list = list(map(lambda x: [x[2],x[2]] if x[2] <= 1 else [1,1],exercise[0]))
             # print(pose_weight_list)
             weight_list = list(a*b for (a,b) in zip(list(chain(*miss_weight_list)),list(chain(*pose_weight_list))))
-            normalize_weight = weight_list.count(1)
+            # normalize_weight = sum(list(chain(*weight_list)))
+            normalize_weight = sum(weight_list)
+            print(normalize_weight)
             # Show similarity score on image
             #score with no ommit keypoint
             # score = euclidean(list(chain(*my_pose[0])), list(chain(*exercise_pose[0]))) 
             #score with ommited keypoint
-            score = euclidean(list(chain(*my_pose[0])), list(chain(*exercise_pose[0])),list(weight_list))/ (normalize_weight if normalize_weight!=0 else 1)
+            # score = euclidean(list(chain(*my_pose[0])), list(chain(*exercise_pose[0])),list(weight_list))/ (normalize_weight if normalize_weight!=0 else 1)
             # print("test")
+            score = euclidean(list(chain(*my_pose_norm[0])), list(chain(*exercise_pose_norm[0])),list(weight_list))/ (normalize_weight if normalize_weight!=0 else 1)
+            max_score = euclidean([0]*len(list(chain(*exercise_pose_norm[0]))), list(chain(*exercise_pose_norm[0])),list(weight_list))/ (normalize_weight if normalize_weight!=0 else 1)
+            adjusted_score = 10*(1-(score/max_score)**0.75)
+            adjusted_score = (0 if adjusted_score <= 0 else adjusted_score)
+            print("test")
             # if score < 0.25:
             #     task_finish += 1
             #     if task_finish == 3:
@@ -216,7 +221,7 @@ def main():
         # Add image to the side
         img = np.hstack((exercise_img, img))
 
-        img = write_on_image(img=img, text=f"{task_finish} - {score}", color=[0, 0, 0])
+        img = write_on_image(img=img, text=f"{task_finish} - {score} - {adjusted_score}", color=[0, 0, 0])
         cv2.imshow("My Pose", img)
 
 
