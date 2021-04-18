@@ -126,12 +126,13 @@ class Application(tk.Frame):
             self.pause()
             self.finish()
         else:
+            if self._job is not None:
+                self.after_cancel(self._job)
             self.is_finish = False
             self.countdown = COUNTDOWN
             self.exercise_canvas.destroy()
             self.init_exercise(self.exercise_list.pop(0))
             self.scoreLabel["text"] = "Loading..."
-            self.init_cap()
             self.update()
             threading.Thread(target=self.thread_countdown).start()
 
@@ -180,7 +181,7 @@ class Application(tk.Frame):
         if self.is_finish == True:
             self.countdown = COUNTDOWN
             self.is_finish = False
-            self.pause()
+            # self.pause()
             self.start_next_exercise()
         elif frame is not None:
             self.cv2image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
