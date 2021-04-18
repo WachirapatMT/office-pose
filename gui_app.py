@@ -19,7 +19,7 @@ from itertools import chain
 
 WIDTH = 640
 HEIGHT = 480
-COUNTDOWN = 5
+COUNTDOWN = 15
 
 import threading
 
@@ -115,6 +115,7 @@ class Application(tk.Frame):
         self.is_finish = False
         self.countdown = COUNTDOWN
         self.exercise_list = exercise_list
+        self.score = 0
         self.init_cap()
         self.create_widgets()
         self.init_exercise(self.exercise_list.pop(0))
@@ -180,6 +181,7 @@ class Application(tk.Frame):
         if self.is_finish == True:
             self.countdown = COUNTDOWN
             self.is_finish = False
+            self.score = 0
             self.pause()
             self.start_next_exercise()
         elif frame is not None:
@@ -209,8 +211,17 @@ class Application(tk.Frame):
                 my_pose_norm = normalise(my_pose)
                 exercise_pose_norm = normalise(exercise_pose)
 
-                self.scoreLabel["text"] = "Score: {:.4f} [{}]".format(
-                    euclidean(list(chain(*my_pose[0])), list(chain(*exercise_pose[0]))),
+                miss_weight_list = list(map(lambda x: [1,1] if x[2] >= 1e-5 else [10,10],keypoint_sets[0]))
+                pose_weight_list = list(map(lambda x: [x[2],x[2]] if x[2] <= 1 else [1,1],self.exercise[0]))
+                weight_list = list(a*b for (a,b) in zip(list(chain(*miss_weight_list)),list(chain(*pose_weight_list))))
+                normalize_weight = sum(weight_list)
+
+                score = euclidean(list(chain(*my_pose_norm[0])), list(chain(*exercise_pose_norm[0])),weight_list)/ (normalize_weight if normalize_weight!=0 else 1)
+                max_score = euclidean([0]*len(list(chain(*exercise_pose_norm[0]))), list(chain(*exercise_pose_norm[0])),weight_list)/ (normalize_weight if normalize_weight!=0 else 1)
+                self.score = 10*(1-(score/max_score)**0.75)
+
+                self.scoreLabel["text"] = "Score: {:.4f} [{:.0f}]".format(
+                    self.score,
                     self.countdown,
                 )
 
@@ -255,6 +266,7 @@ class Application(tk.Frame):
     def thread_countdown(self):
         while self.countdown > 0:
             # print(f"Count down {self.countdown}")
-            time.sleep(1)
-            self.countdown -= 1
+                time.sleep(0.1)
+                if self.score>7:
+                    self.countdown -= 0.1
         self.is_finish = True
