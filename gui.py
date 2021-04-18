@@ -51,9 +51,6 @@ def onFreePlay():
 def onShowSkeleton():
     app.setShowSkeleton(showSkeleton.get())
 
-def onShowJoint():
-    app.setShowJoint(showJoint.get())
-
 
 ########## App ##########
 backButton = HoverButton(app, text="Back", padx=10, pady=2, command=onBack, font="14")
@@ -73,18 +70,6 @@ skeletonCheckBox = tk.Checkbutton(
     font="Helvetica 10 bold",
 )
 skeletonCheckBox.place(x=1385, y=640, anchor=tk.SE)
-
-showJoint = tk.IntVar()
-jointCheckBox = tk.Checkbutton(
-    app,
-    text="Show Joint",
-    variable=showJoint,
-    onvalue=1,
-    offvalue=0,
-    command=onShowJoint,
-    font="Helvetica 10 bold",
-)
-jointCheckBox.place(x=1255, y=640, anchor=tk.SE)
 
 ######### Main ##########
 mainLabel = tk.Label(mainPage, text="Welcome to Office Pose!", font="Helvetica 26 bold")

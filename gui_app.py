@@ -190,6 +190,4 @@ class Application(tk.Frame):
 
     def setShowSkeleton(self, isShow):
         self.args.skeleton = isShow
-
-    def setShowJoint(self, isShow):
         self.args.joints = isShow
