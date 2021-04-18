@@ -2,7 +2,6 @@ import tkinter as tk
 import PIL.Image, PIL.ImageTk
 
 import cv2
-
 import numpy as np
 import openpifpaf
 import torch
@@ -21,29 +20,39 @@ WIDTH = 640
 HEIGHT = 480
 
 import threading
+
+
 class StoppableThread(threading.Thread):
-  def __init__(self):
-    super().__init__()
-    self._stop_event = threading.Event()
-  def stop(self):
-    self._stop_event.set()
-  def stopped(self):
-    return self._stop_event.is_set()
+    def __init__(self):
+        super().__init__()
+        self._stop_event = threading.Event()
+
+    def stop(self):
+        self._stop_event.set()
+
+    def stopped(self):
+        return self._stop_event.is_set()
+
 
 class PoseThread(StoppableThread):
-  def __init__(self, application=None):
-    super().__init__()
-    self.application = application
-  def run(self):
-    while not self.stopped():
-      if(hasattr(self.application, 'cv2image')):
-        keypoint_sets, scores, width_height = self.application.processor_singleton.single_image(
-            b64image=base64.b64encode(
-                cv2.imencode(".jpg", self.application.cv2image)[1]
-            ).decode("UTF-8")
-        )
-        # print(keypoint_sets)
-        self.application.keypoint_sets = keypoint_sets
+    def __init__(self, application=None):
+        super().__init__()
+        self.application = application
+
+    def run(self):
+        while not self.stopped():
+            if hasattr(self.application, "cv2image"):
+                (
+                    keypoint_sets,
+                    scores,
+                    width_height,
+                ) = self.application.processor_singleton.single_image(
+                    b64image=base64.b64encode(
+                        cv2.imencode(".jpg", self.application.cv2image)[1]
+                    ).decode("UTF-8")
+                )
+                # print(keypoint_sets)
+                self.application.keypoint_sets = keypoint_sets
 
 
 class Application(tk.Frame):
