@@ -20,6 +20,31 @@ from itertools import chain
 WIDTH = 640
 HEIGHT = 480
 
+import threading
+class StoppableThread(threading.Thread):
+  def __init__(self):
+    super().__init__()
+    self._stop_event = threading.Event()
+  def stop(self):
+    self._stop_event.set()
+  def stopped(self):
+    return self._stop_event.is_set()
+
+class PoseThread(StoppableThread):
+  def __init__(self, application=None):
+    super().__init__()
+    self.application = application
+  def run(self):
+    while not self.stopped():
+      if(hasattr(self.application, 'cv2image')):
+        keypoint_sets, scores, width_height = self.application.processor_singleton.single_image(
+            b64image=base64.b64encode(
+                cv2.imencode(".jpg", self.application.cv2image)[1]
+            ).decode("UTF-8")
+        )
+        # print(keypoint_sets)
+        self.application.keypoint_sets = keypoint_sets
+
 
 class Application(tk.Frame):
     def __init__(self, master=None, args=cli()):
@@ -36,6 +61,9 @@ class Application(tk.Frame):
         self.master.bind("<Escape>", self.terminate)
         self.create_widgets()
         self.init_processor()
+
+        self.poseThread = PoseThread(self)
+        self.poseThread.start()
 
     def init_processor(self):
         # Resize image to multiple of 16 due to some unknown convention
@@ -84,6 +112,7 @@ class Application(tk.Frame):
         self.cap.release()
 
     def terminate(self, e=None):
+        self.poseThread.stop()
         self.quit()
 
     def create_widgets(self):
@@ -97,15 +126,15 @@ class Application(tk.Frame):
         if frame is not None:
             self.cv2image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
-            keypoint_sets, scores, width_height = self.processor_singleton.single_image(
-                b64image=base64.b64encode(
-                    cv2.imencode(".jpg", self.cv2image)[1]
-                ).decode("UTF-8")
-            )
-            if not self.args.compare:
+            # keypoint_sets, scores, width_height = self.processor_singleton.single_image(
+            #     b64image=base64.b64encode(
+            #         cv2.imencode(".jpg", self.cv2image)[1]
+            #     ).decode("UTF-8")
+            # )
+            if not self.args.compare and self.keypoint_sets is not None:
                 self.cv2image = visualise(
                     img=self.cv2image,
-                    keypoint_sets=keypoint_sets,
+                    keypoint_sets=self.keypoint_sets,
                     width=WIDTH,
                     height=HEIGHT,
                     vis_keypoints=self.args.joints,
@@ -113,6 +142,8 @@ class Application(tk.Frame):
                 )
 
             try:
+                keypoint_sets = self.keypoint_sets
+
                 my_pose = [list(map(lambda x: [x[0], x[1]], keypoint_sets[0]))]
                 exercise_pose = [list(map(lambda x: [x[0], x[1]], self.exercise[0]))]
 
