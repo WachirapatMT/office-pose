@@ -22,7 +22,7 @@ mainPage.place(in_=container, x=0, y=0, relwidth=1, relheight=1)
 
 ######## Function ########
 def onStart():
-    app.start()
+    app.start(list(EXERCISE.keys()))
     app.lift()
 
 
@@ -44,7 +44,7 @@ def onFreePlay():
         [ex.replace("_", " ").capitalize() for ex in EXERCISE.keys()],
     )
     root.wait_window(modal.top)
-    app.start(input.get().replace(" ", "_").lower())
+    app.start([input.get().replace(" ", "_").lower()])
     app.lift()
 
 

@@ -12,12 +12,14 @@ from common import CocoPart, SKELETON_CONNECTIONS, write_on_image, visualise, no
 from processor import Processor
 from exercise import EXERCISE
 
+import time
 import base64
 import os
 from itertools import chain
 
 WIDTH = 640
 HEIGHT = 480
+COUNTDOWN = 5
 
 import threading
 
@@ -68,7 +70,6 @@ class Application(tk.Frame):
         self.scoreLabel = None
 
         self.master.bind("<Escape>", self.terminate)
-        self.create_widgets()
         self.init_processor()
 
         self.poseThread = PoseThread(self)
@@ -110,15 +111,59 @@ class Application(tk.Frame):
         self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, WIDTH)
         self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, HEIGHT)
 
-    def start(self, exercise="side_bend_right"):
+    def start(self, exercise_list=["side_bend_right"]):
+        self.is_finish = False
+        self.countdown = COUNTDOWN
+        self.exercise_list = exercise_list
         self.init_cap()
-        self.init_exercise(exercise)
+        self.create_widgets()
+        self.init_exercise(self.exercise_list.pop(0))
         self.update()
+        threading.Thread(target=self.thread_countdown).start()
+
+    def start_next_exercise(self):
+        if len(self.exercise_list) == 0:
+            self.pause()
+            self.finish()
+        else:
+            self.is_finish = False
+            self.countdown = COUNTDOWN
+            self.exercise_canvas.destroy()
+            self.init_exercise(self.exercise_list.pop(0))
+            self.scoreLabel["text"] = "Loading..."
+            self.init_cap()
+            self.update()
+            threading.Thread(target=self.thread_countdown).start()
 
     def pause(self):
         if self._job is not None:
             self.after_cancel(self._job)
         self.cap.release()
+
+    def finish(self):
+        self.scoreLabel['text'] = "Congratulation, you've finished the exercise"
+        self.canvas.destroy()
+        self.exercise_canvas.destroy()
+
+        self.exercise_img = cv2.imread(
+            os.path.join("exercise_images", "finish.jpg")
+        )
+        self.exercise_img = cv2.cvtColor(self.exercise_img, cv2.COLOR_BGR2RGB)
+        self.exercise_img = cv2.resize(
+            self.exercise_img,
+            (self.exercise_img.shape[1] * HEIGHT // self.exercise_img.shape[0], HEIGHT),
+        )
+        canvas = tk.Canvas(self, width=WIDTH, height=HEIGHT, bg="#eeeeee")
+        canvas.place(relx=0.5, y=270, anchor=tk.CENTER)
+        self.exercise_img_on_canvas = canvas.create_image(
+            WIDTH // 2, 0, anchor=tk.N
+        )
+        self.exercise_photo = PIL.ImageTk.PhotoImage(
+            PIL.Image.fromarray(self.exercise_img)
+        )
+        canvas.itemconfig(
+            self.exercise_img_on_canvas, image=self.exercise_photo
+        )
 
     def terminate(self, e=None):
         self.poseThread.stop()
@@ -132,7 +177,12 @@ class Application(tk.Frame):
     def update(self):
         _, frame = self.cap.read()
         frame = cv2.flip(frame, 1)
-        if frame is not None:
+        if self.is_finish == True:
+            self.countdown = COUNTDOWN
+            self.is_finish = False
+            self.pause()
+            self.start_next_exercise()
+        elif frame is not None:
             self.cv2image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
             # keypoint_sets, scores, width_height = self.processor_singleton.single_image(
@@ -159,13 +209,14 @@ class Application(tk.Frame):
                 my_pose_norm = normalise(my_pose)
                 exercise_pose_norm = normalise(exercise_pose)
 
-                self.scoreLabel["text"] = "Score: {:.4f}".format(
-                    euclidean(list(chain(*my_pose[0])), list(chain(*exercise_pose[0])))
+                self.scoreLabel["text"] = "Score: {:.4f} [{}]".format(
+                    euclidean(list(chain(*my_pose[0])), list(chain(*exercise_pose[0]))),
+                    self.countdown,
                 )
 
                 if self.args.compare:
                     # comment out to use real image as a background
-                    self.cv2image = np. ones((480, 640, 3), np.uint8) * 255
+                    self.cv2image = np.ones((480, 640, 3), np.uint8) * 255
 
                     self.cv2image = visualise(
                         img=self.cv2image,
@@ -200,3 +251,10 @@ class Application(tk.Frame):
     def setShowSkeleton(self, isShow):
         self.args.skeleton = isShow
         self.args.joints = isShow
+
+    def thread_countdown(self):
+        while self.countdown > 0:
+            # print(f"Count down {self.countdown}")
+            time.sleep(1)
+            self.countdown -= 1
+        self.is_finish = True
