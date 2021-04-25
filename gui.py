@@ -44,8 +44,9 @@ def onFreePlay():
         [ex.replace("_", " ").capitalize() for ex in EXERCISE.keys()],
     )
     root.wait_window(modal.top)
-    app.start([input.get().replace(" ", "_").lower()])
-    app.lift()
+    if len(input.get()) > 0:
+        app.start([input.get().replace(" ", "_").lower()])
+        app.lift()
 
 
 def onShowSkeleton():
