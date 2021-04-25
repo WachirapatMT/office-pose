@@ -138,6 +138,7 @@ class Application(tk.Frame):
             threading.Thread(target=self.thread_countdown).start()
 
     def pause(self):
+        self.countdown = 0
         if self._job is not None:
             self.after_cancel(self._job)
         self.cap.release()
