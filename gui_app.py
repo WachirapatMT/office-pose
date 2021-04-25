@@ -169,6 +169,7 @@ class Application(tk.Frame):
         )
 
     def terminate(self, e=None):
+        self.countdown = 0
         self.poseThread.stop()
         self.quit()
 
