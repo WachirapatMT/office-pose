@@ -4,8 +4,8 @@ import os
 # Horizontal flip
 imageFolderPath = 'exercise_images'
 
-inputImagePath = os.path.join(imageFolderPath, 'neck_bend_right.png')
-outputImagePath = os.path.join(imageFolderPath, 'neck_bend_left.png')
+inputImagePath = os.path.join(imageFolderPath, 'look_up_left.png')
+outputImagePath = os.path.join(imageFolderPath, 'look_up_right.png')
 
 originalImage = cv2.imread(inputImagePath)
 flipImage = cv2.flip(originalImage, 1)

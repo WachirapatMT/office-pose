@@ -56,7 +56,7 @@ def cli():
     return args
 
 
-def image_pose(image_path="exercise_images/side_bend_l.png"):
+def image_pose(image_path="exercise_images/look_up_right.png"):
     args = cli()
 
     img = cv2.imread(image_path)
