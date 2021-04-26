@@ -3,7 +3,6 @@ import PIL.Image, PIL.ImageTk
 
 import cv2
 import numpy as np
-import openpifpaf
 import torch
 from scipy.spatial.distance import euclidean
 
@@ -19,7 +18,7 @@ from itertools import chain
 
 WIDTH = 640
 HEIGHT = 480
-COUNTDOWN = 15
+COUNTDOWN = 5
 
 import threading
 
@@ -81,6 +80,13 @@ class Application(tk.Frame):
             int(WIDTH * self.args.resolution // 16) * 16,
             int(HEIGHT * self.args.resolution // 16) * 16,
         )
+        if torch.cuda.is_available():
+            self.args.device = torch.device("cuda")
+            print('Using CUDA')
+        else:
+            self.args.device = torch.device("cpu")
+            print('Using CPU')
+
         # Initialise model
         self.processor_singleton = Processor(width_height, self.args)
 
