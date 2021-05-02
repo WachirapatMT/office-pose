@@ -6,8 +6,7 @@ import numpy as np
 import torch
 from scipy.spatial.distance import euclidean
 
-from exercise_compare import cli
-from common import CocoPart, SKELETON_CONNECTIONS, write_on_image, visualise, normalise
+from common import CocoPart, SKELETON_CONNECTIONS, write_on_image, visualise, normalise, cli
 from processor import Processor
 from exercise import EXERCISE
 
@@ -96,6 +95,18 @@ class Application(tk.Frame):
             os.path.join("exercise_images", f"{exercise}.png")
         )
         self.exercise_img = cv2.cvtColor(self.exercise_img, cv2.COLOR_BGR2RGB)
+        if self.args.skeletonex:
+            height, width = self.exercise_img.shape[:2]
+            self.exercise_img = visualise(
+                            img=self.exercise_img,
+                            keypoint_sets=self.exercise,
+                            width=width,
+                            height=height,
+                            tranX=0,
+                            tranY=0,
+                            vis_keypoints=True,
+                            vis_skeleton=True,
+                            )
         self.exercise_img = cv2.resize(
             self.exercise_img,
             (self.exercise_img.shape[1] * HEIGHT // self.exercise_img.shape[0], HEIGHT),
