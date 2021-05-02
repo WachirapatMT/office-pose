@@ -5,6 +5,7 @@ import time
 import openpifpaf
 import PIL
 import torch
+import numpy as np
 
 
 class Processor(object):
@@ -29,7 +30,7 @@ class Processor(object):
             im = im.resize(target_wh, PIL.Image.BICUBIC)
         width_height = im.size 
 
-        start = time.time()
+        # start = time.time()
         preprocess = openpifpaf.transforms.EVAL_TRANSFORM
         processed_image_cpu, _, __ = preprocess(im, [], None)
         processed_image = processed_image_cpu.contiguous().to(self.device, non_blocking=True)
