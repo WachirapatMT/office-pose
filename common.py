@@ -67,11 +67,11 @@ def normalise(all_coordinates: List) -> List:
                           coordinates[CocoPart.LShoulder.value][1] - coordinates[CocoPart.LHip.value][1]) + 
                  math.hypot(coordinates[CocoPart.RShoulder.value][0] - coordinates[CocoPart.RHip.value][0],
                           coordinates[CocoPart.RShoulder.value][1] - coordinates[CocoPart.RHip.value][1])) / 2
-        if distX > 0 and distY > 0:                  
+        if distX > 0 and distY > 0 and distX/distY>0.25:                  
             coordinates = [[coordinate[0] / distX, coordinate[1] * 2 / distY] for coordinate in coordinates]
-        elif distY == 0:
+        elif distY == 0 and distX/distY>0.25:
             coordinates = [[coordinate[0] / distX, coordinate[1] / distX] for coordinate in coordinates]
-        elif distX == 0:
+        else:
             coordinates = [[coordinate[0] * 2 / distY, coordinate[1] * 2 / distY] for coordinate in coordinates]
         norm_coords.append(coordinates)
 

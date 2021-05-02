@@ -228,7 +228,7 @@ class Application(tk.Frame):
                 score = euclidean(list(chain(*my_pose_norm[0])), list(chain(*exercise_pose_norm[0])),weight_list)/ (normalize_weight if normalize_weight!=0 else 1)
                 max_score = euclidean([0]*len(list(chain(*exercise_pose_norm[0]))), list(chain(*exercise_pose_norm[0])),weight_list)/ (normalize_weight if normalize_weight!=0 else 1)
                 self.score = 10*(1-(score/max_score)**0.75)
-
+                self.score = (0 if self.score <= 0 else self.score)
                 self.scoreLabel["text"] = "Score: {:.4f} [{:.0f}]".format(
                     self.score,
                     self.countdown,
