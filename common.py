@@ -1,6 +1,9 @@
 from enum import IntEnum, unique
 from typing import List, Tuple
 
+import openpifpaf
+import torch
+import argparse
 import cv2
 import numpy as np
 import math
@@ -9,6 +12,7 @@ import math
 @unique
 class CocoPart(IntEnum):
     """Body part locations in the 'coordinates' list."""
+
     Nose = 0
     LEye = 1
     REye = 2
@@ -28,13 +32,27 @@ class CocoPart(IntEnum):
     RAnkle = 16
 
 
-SKELETON_CONNECTIONS = [(0, 1, (210, 182, 247)), (0, 2, (127, 127, 127)), (1, 2, (194, 119, 227)),
-                        (1, 3, (199, 199, 199)), (2, 4, (34, 189, 188)), (3, 5, (141, 219, 219)),
-                        (4, 6, (207, 190, 23)), (5, 6, (150, 152, 255)), (5, 7, (189, 103, 148)),
-                        (5, 11, (138, 223, 152)), (6, 8, (213, 176, 197)), (6, 12, (40, 39, 214)),
-                        (7, 9, (75, 86, 140)), (8, 10, (148, 156, 196)), (11, 12, (44, 160, 44)),
-                        (11, 13, (232, 199, 174)), (12, 14, (120, 187, 255)), (13, 15, (180, 119, 31)),
-                        (14, 16, (14, 127, 255))]
+SKELETON_CONNECTIONS = [
+    (0, 1, (210, 182, 247)),
+    (0, 2, (127, 127, 127)),
+    (1, 2, (194, 119, 227)),
+    (1, 3, (199, 199, 199)),
+    (2, 4, (34, 189, 188)),
+    (3, 5, (141, 219, 219)),
+    (4, 6, (207, 190, 23)),
+    (5, 6, (150, 152, 255)),
+    (5, 7, (189, 103, 148)),
+    (5, 11, (138, 223, 152)),
+    (6, 8, (213, 176, 197)),
+    (6, 12, (40, 39, 214)),
+    (7, 9, (75, 86, 140)),
+    (8, 10, (148, 156, 196)),
+    (11, 12, (44, 160, 44)),
+    (11, 13, (232, 199, 174)),
+    (12, 14, (120, 187, 255)),
+    (13, 15, (180, 119, 31)),
+    (14, 16, (14, 127, 255)),
+]
 
 
 def normalise(all_coordinates: List) -> List:
@@ -53,7 +71,10 @@ def normalise(all_coordinates: List) -> List:
     for coordinates in all_coordinates:
         # Step 1: Translate
         coordinates = [
-            [coordinate[0] - coordinates[CocoPart.Nose.value][0], coordinate[1] - coordinates[CocoPart.Nose.value][1]]
+            [
+                coordinate[0] - coordinates[CocoPart.Nose.value][0],
+                coordinate[1] - coordinates[CocoPart.Nose.value][1],
+            ]
             for coordinate in coordinates
         ]
 
@@ -61,32 +82,71 @@ def normalise(all_coordinates: List) -> List:
         # dist = math.hypot(coordinates[CocoPart.LShoulder.value][0] - coordinates[CocoPart.RShoulder.value][0],
         #                   coordinates[CocoPart.LShoulder.value][1] - coordinates[CocoPart.RShoulder.value][1])
 
-        distX = math.hypot(coordinates[CocoPart.LShoulder.value][0] - coordinates[CocoPart.RShoulder.value][0],
-                          coordinates[CocoPart.LShoulder.value][1] - coordinates[CocoPart.RShoulder.value][1])
-        distY = (math.hypot(coordinates[CocoPart.LShoulder.value][0] - coordinates[CocoPart.LHip.value][0],
-                          coordinates[CocoPart.LShoulder.value][1] - coordinates[CocoPart.LHip.value][1]) + 
-                 math.hypot(coordinates[CocoPart.RShoulder.value][0] - coordinates[CocoPart.RHip.value][0],
-                          coordinates[CocoPart.RShoulder.value][1] - coordinates[CocoPart.RHip.value][1])) / 2
-        if distX > 0 and distY > 0:                  
-            coordinates = [[coordinate[0] / distX, coordinate[1] * 2 / distY] for coordinate in coordinates]
-        elif distY == 0:
-            coordinates = [[coordinate[0] / distX, coordinate[1] / distX] for coordinate in coordinates]
-        elif distX == 0:
-            coordinates = [[coordinate[0] * 2 / distY, coordinate[1] * 2 / distY] for coordinate in coordinates]
+        distX = math.hypot(
+            coordinates[CocoPart.LShoulder.value][0]
+            - coordinates[CocoPart.RShoulder.value][0],
+            coordinates[CocoPart.LShoulder.value][1]
+            - coordinates[CocoPart.RShoulder.value][1],
+        )
+        distY = (
+            math.hypot(
+                coordinates[CocoPart.LShoulder.value][0]
+                - coordinates[CocoPart.LHip.value][0],
+                coordinates[CocoPart.LShoulder.value][1]
+                - coordinates[CocoPart.LHip.value][1],
+            )
+            + math.hypot(
+                coordinates[CocoPart.RShoulder.value][0]
+                - coordinates[CocoPart.RHip.value][0],
+                coordinates[CocoPart.RShoulder.value][1]
+                - coordinates[CocoPart.RHip.value][1],
+            )
+        ) / 2
+        if distX > 0 and distY > 0 and distX / distY > 0.25:
+            coordinates = [
+                [coordinate[0] / distX, coordinate[1] * 2 / distY]
+                for coordinate in coordinates
+            ]
+        elif distY == 0 and distX / distY > 0.25:
+            coordinates = [
+                [coordinate[0] / distX, coordinate[1] / distX]
+                for coordinate in coordinates
+            ]
+        else:
+            coordinates = [
+                [coordinate[0] * 2 / distY, coordinate[1] * 2 / distY]
+                for coordinate in coordinates
+            ]
         norm_coords.append(coordinates)
 
     return norm_coords
 
-def visualise(img: np.ndarray, keypoint_sets: List, width: int, height: int, tranX=0, tranY=0, vis_keypoints: bool = True,
-              vis_skeleton: bool = False) -> np.ndarray:
+
+def visualise(
+    img: np.ndarray,
+    keypoint_sets: List,
+    width: int,
+    height: int,
+    tranX=0,
+    tranY=0,
+    vis_keypoints: bool = True,
+    vis_skeleton: bool = False,
+) -> np.ndarray:
     """Draw keypoints/skeleton on the output video frame."""
-    if len(keypoint_sets) == 0: return img
+    if len(keypoint_sets) == 0:
+        return img
     if vis_keypoints or vis_skeleton:
         coords = keypoint_sets[0]
         if vis_skeleton:
             for p1i, p2i, color in SKELETON_CONNECTIONS:
-                p1 = (int(coords[p1i][0] * width) + tranX, int(coords[p1i][1] * height) + tranY)
-                p2 = (int(coords[p2i][0] * width) + tranX, int(coords[p2i][1] * height) + tranY)
+                p1 = (
+                    int(coords[p1i][0] * width) + tranX,
+                    int(coords[p1i][1] * height) + tranY,
+                )
+                p2 = (
+                    int(coords[p2i][0] * width) + tranX,
+                    int(coords[p2i][1] * height) + tranY,
+                )
                 if p1 == (0, 0) or p2 == (0, 0):
                     continue
                 cv2.line(img=img, pt1=p1, pt2=p2, color=color, thickness=3)
@@ -97,7 +157,9 @@ def visualise(img: np.ndarray, keypoint_sets: List, width: int, height: int, tra
                 # Joint wasn't detected
                 if p == (0, 0):
                     continue
-                cv2.circle(img=img, center=p, radius=5, color=(255, 255, 255), thickness=-1)
+                cv2.circle(
+                    img=img, center=p, radius=5, color=(255, 255, 255), thickness=-1
+                )
 
     return img
 
@@ -105,25 +167,30 @@ def visualise(img: np.ndarray, keypoint_sets: List, width: int, height: int, tra
 def write_on_image(img: np.ndarray, text: str, color: List) -> np.ndarray:
     """Write text at the top of the image."""
     # Add a white border to top of image for writing text
-    img = cv2.copyMakeBorder(src=img,
-                             top=int(0.25 * img.shape[0]),
-                             bottom=0,
-                             left=0,
-                             right=0,
-                             borderType=cv2.BORDER_CONSTANT,
-                             dst=None,
-                             value=[255, 255, 255])
-    for i, line in enumerate(text.split('\n')):
+    img = cv2.copyMakeBorder(
+        src=img,
+        top=int(0.25 * img.shape[0]),
+        bottom=0,
+        left=0,
+        right=0,
+        borderType=cv2.BORDER_CONSTANT,
+        dst=None,
+        value=[255, 255, 255],
+    )
+    for i, line in enumerate(text.split("\n")):
         y = 30 + i * 30
-        cv2.putText(img=img,
-                    text=line,
-                    org=(20, y),
-                    fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-                    fontScale=1,
-                    color=color,
-                    thickness=3)
+        cv2.putText(
+            img=img,
+            text=line,
+            org=(20, y),
+            fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+            fontScale=1,
+            color=color,
+            thickness=3,
+        )
 
     return img
+
 
 def write_to_csv(frame_number: int, humans: List, width: int, height: int, csv_fp: str):
     """Save keypoint coordinates of the *first* human pose identified to a CSV file.
@@ -146,20 +213,86 @@ def write_to_csv(frame_number: int, humans: List, width: int, height: int, csv_f
     :param csv_fp: Path to the CSV file
     """
     # Use only the first human identified using pose estimation
-    coordinates = humans[0]['coordinates'] if len(humans) > 0 else [None for _ in range(17)]
+    coordinates = (
+        humans[0]["coordinates"] if len(humans) > 0 else [None for _ in range(17)]
+    )
 
     # Final row that will be written to the CSV file
-    row = [frame_number] + ['' for _ in range(51)]  # Number of coco points * 3 -> 17 * 3 -> 51
+    row = [frame_number] + [
+        "" for _ in range(51)
+    ]  # Number of coco points * 3 -> 17 * 3 -> 51
 
     # Update the items in the row for every joint
     # TODO: Value for joints not identified? Currently stored as 0
     for part in CocoPart:
         if coordinates[part] is not None:
-            index = 1 + 3 * part.value  # Index at which the values for this joint would start in the final row
+            index = (
+                1 + 3 * part.value
+            )  # Index at which the values for this joint would start in the final row
             row[index] = coordinates[part][0] * width
             row[index + 1] = coordinates[part][1] * height
             row[index + 2] = coordinates[part][2]
 
-    with open(csv_fp, mode='a', newline='') as csv_file:
-        csv_writer = csv.writer(csv_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+    with open(csv_fp, mode="a", newline="") as csv_file:
+        csv_writer = csv.writer(
+            csv_file, delimiter=",", quotechar='"', quoting=csv.QUOTE_MINIMAL
+        )
         csv_writer.writerow(row)
+
+
+def cli():
+    parser = argparse.ArgumentParser(
+        description=__doc__,
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
+
+    openpifpaf.decoder.cli(
+        parser, force_complete_pose=True, instance_threshold=0.2, seed_threshold=0.5
+    )
+    openpifpaf.network.nets.cli(parser)
+    parser.add_argument(
+        "--resolution",
+        default=0.4,
+        type=float,
+        help=(
+            "Resolution prescale factor from 640x480. "
+            "Will be rounded to multiples of 16."
+        ),
+    )
+    parser.add_argument("--video", default="0", type=str, help="Video source")
+    
+    vis_args = parser.add_argument_group("Visualisation")
+    vis_args.add_argument(
+        "--joints",
+        default=False,
+        action="store_true",
+        help="Draw joint's keypoints on the output video.",
+    )
+    vis_args.add_argument(
+        "--skeleton",
+        default=False,
+        action="store_true",
+        help="Draw skeleton on the output video.",
+    )
+    vis_args.add_argument(
+        "--skeletonex",
+        default=False,
+        action="store_true",
+        help="Draw skeleton on exercise image",
+    )
+    vis_args.add_argument(
+        "--compare",
+        default=False,
+        action="store_true",
+        help="Compare between user pose and the chosen exercise",
+    )
+
+    args = parser.parse_args()
+
+    # Add args.device
+    if torch.cuda.is_available():
+        args.device = torch.device("cuda")
+    else:
+        args.device = torch.device("cpu")
+
+    return args

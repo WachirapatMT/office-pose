@@ -1,7 +1,6 @@
 import tkinter as tk
 
-from exercise_compare import cli
-
+from common import cli
 from gui_app import Application
 from gui_component import HoverButton, Modal
 from exercise import EXERCISE
