@@ -84,7 +84,8 @@ def cli():
 
 
 def main():
-    score = 10
+    score = 0
+    adjusted_score = 0
     task_finish = 0
     args = cli()
 
