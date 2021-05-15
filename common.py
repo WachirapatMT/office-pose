@@ -1,6 +1,7 @@
 from enum import IntEnum, unique
 from typing import List, Tuple
 
+import csv
 import openpifpaf
 import torch
 import argparse
@@ -56,16 +57,7 @@ SKELETON_CONNECTIONS = [
 
 
 def normalise(all_coordinates: List) -> List:
-    """The normalization is a simple coordinate transformation done in two steps:
-
-    1. Translation: All the key points are translated such that the nose key point becomes the origin of the coordinate
-        system. This is achieved by subtracting the nose key points coordinates from all other key points.
-
-    2. Scaling: The key points are scaled such that the distance between the left shoulder and right shoulder key point
-        becomes 1. This is done by dividing all key points coordinates by the distance between the left and right
-        shoulder key point.
-    """
-    norm_coords = []  # Hold the normalised coordinates for every frame
+    norm_coords = []
 
     # Iterate over every frame
     for coordinates in all_coordinates:
@@ -79,9 +71,6 @@ def normalise(all_coordinates: List) -> List:
         ]
 
         # Step 2: Scale
-        # dist = math.hypot(coordinates[CocoPart.LShoulder.value][0] - coordinates[CocoPart.RShoulder.value][0],
-        #                   coordinates[CocoPart.LShoulder.value][1] - coordinates[CocoPart.RShoulder.value][1])
-
         distX = math.hypot(
             coordinates[CocoPart.LShoulder.value][0]
             - coordinates[CocoPart.RShoulder.value][0],
@@ -260,7 +249,7 @@ def cli():
         ),
     )
     parser.add_argument("--video", default="0", type=str, help="Video source")
-    
+
     vis_args = parser.add_argument_group("Visualisation")
     vis_args.add_argument(
         "--joints",

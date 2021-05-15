@@ -1,12 +1,9 @@
 import base64
 import io
-import time
 
 import openpifpaf
 import PIL
 import torch
-import numpy as np
-
 
 class Processor(object):
     def __init__(self, width_height, args):
@@ -22,19 +19,17 @@ class Processor(object):
         image_bytes = io.BytesIO(base64.b64decode(b64image))
         im = PIL.Image.open(image_bytes).convert('RGB')
 
+        # Resolution
         target_wh = self.width_height
         if (im.size[0] > im.size[1]) != (target_wh[0] > target_wh[1]):
             target_wh = (target_wh[1], target_wh[0])
         if im.size[0] != target_wh[0] or im.size[1] != target_wh[1]:
-            # print(f'!!! have to resize image to {target_wh} from {im.size}')
             im = im.resize(target_wh, PIL.Image.BICUBIC)
         width_height = im.size 
 
-        # start = time.time()
         preprocess = openpifpaf.transforms.EVAL_TRANSFORM
         processed_image_cpu, _, __ = preprocess(im, [], None)
         processed_image = processed_image_cpu.contiguous().to(self.device, non_blocking=True)
-        # print(f'preprocessing time {time.time() - start}')
 
         all_fields = self.processor.fields(torch.unsqueeze(processed_image.float(), 0))[0]
         keypoint_sets, scores = self.processor.keypoint_sets(all_fields)

@@ -1,19 +1,11 @@
-import csv
 import argparse
 import base64
 
-from typing import List
-
-import numpy as np
 import openpifpaf
 import torch
 import cv2
 
 from common import (
-    CocoPart,
-    SKELETON_CONNECTIONS,
-    write_on_image,
-    write_to_csv,
     visualise,
 )
 from processor import Processor

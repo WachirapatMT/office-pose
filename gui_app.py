@@ -6,7 +6,7 @@ import numpy as np
 import torch
 from scipy.spatial.distance import euclidean
 
-from common import CocoPart, SKELETON_CONNECTIONS, write_on_image, visualise, normalise, cli
+from common import visualise, normalise, cli
 from processor import Processor
 from exercise import EXERCISE
 
@@ -207,11 +207,6 @@ class Application(tk.Frame):
         elif frame is not None:
             self.cv2image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
-            # keypoint_sets, scores, width_height = self.processor_singleton.single_image(
-            #     b64image=base64.b64encode(
-            #         cv2.imencode(".jpg", self.cv2image)[1]
-            #     ).decode("UTF-8")
-            # )
             if not self.args.compare and self.keypoint_sets is not None:
                 self.cv2image = visualise(
                     img=self.cv2image,

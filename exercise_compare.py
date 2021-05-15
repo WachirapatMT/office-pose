@@ -1,10 +1,8 @@
 import argparse
 import base64
-import csv
 import time
 import os
 
-from typing import List
 from itertools import chain
 
 import cv2
@@ -13,7 +11,7 @@ import openpifpaf
 import torch
 from scipy.spatial.distance import euclidean
 
-from common import CocoPart, SKELETON_CONNECTIONS, write_on_image, visualise, normalise
+from common import write_on_image, visualise, normalise
 from processor import Processor
 from exercise import EXERCISE
 
