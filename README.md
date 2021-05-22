@@ -1,8 +1,33 @@
-## exercise_compare.py
+# Project Description
 
-Compare user's pose and the specified exercise pose
+what
 
-**Important Arguments**
+# Why is it interesting ?
+
+why
+
+# Technical Challenges
+
+- asdf
+- adsg
+- asdg
+
+# Related Works
+
+- asdf
+- lkj;g
+
+# Methodology
+
+## Select Model
+
+## Prepare Exercises
+
+## Get Inputs
+
+### Images
+
+### Argument
 
 - `compare` - turn on compare mode
 - `video` - define video source {0: default webcam, 1: extra webcam, or path to a video}
@@ -11,50 +36,22 @@ Compare user's pose and the specified exercise pose
 - `exercise` - specified an exercise to be compared
 - `resolution` - just a resolution value
 
-#
+## Normalize Keypoints
 
-## visualise_image.py
+## Pose Compare (Scoring)
 
-Calculate and visualise keypoints of a single image
+## Integrate with GUI
 
-**Important Arguments**
+# Results
 
-- `override` - use hard code keypoints instead of returned keypoints
-- `resolution` - just a resolution value
+may be some images
 
+# Limitations
 
-#
+- adsg
+- asdgds
 
-## common.py
+# Recommendations for Future Improvement
 
-Store common functions to be imported by other modules
-
-#
-
-## flip_image.py
-
-Apply horizontal flip to a specified image
-
-#
-
-## keypoints format
-
-|              | keypoints    |                 |
-| ------------ | ------------ | --------------- |
-| nose.x       | nose.y       | nose.prob       |
-| l.eye.x      | l.eye.y      | l.eye.prob      |
-| r.eye.x      | r.eye.y      | r.eye.prob      |
-| l.ear.x      | l.ear.y      | l.ear.prob      |
-| r.ear.x      | r.ear.y      | r.ear.prob      |
-| l.shoulder.x | l.shoulder.y | l.shoulder.prob |
-| r.shoulder.x | r.shoulder.y | r.shoulder.prob |
-| l.elbow.x    | l.elbow.y    | l.elbow.prob    |
-| r.elbow.x    | r.elbow.y    | r.elbow.prob    |
-| l.wrist.x    | l.wrist.y    | l.wrist.prob    |
-| r.wrist.x    | r.wrist.y    | r.wrist.prob    |
-| l.hip.x      | l.hip.y      | l.hip.prob      |
-| r.hip.x      | r.hip.y      | r.hip.prob      |
-| l.knee.x     | l.knee.y     | l.knee.prob     |
-| r.knee.x     | r.knee.y     | r.knee.prob     |
-| l.ankle.x    | l.ankle.y    | l.ankle.prob    |
-| r.ankle.x    | r.ankle.y    | r.ankle.prob    |
+- asdf
+- asdgdsa
