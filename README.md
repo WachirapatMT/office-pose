@@ -67,7 +67,15 @@ Physio Pose is an application that help people do exercises by provide instant f
 
 ## Normalize Keypoints
 
+1. All the keypoints are translated such that the nose keypoint becomes the origin of the coordinate system.
+2. The keypoints are scaled such that the distance between the left shoulder and right shoulder keypoints becomes 1.
+3. In case of side pose exercise, the keypoints are scaled such that the distance between the shoulder and hip keypoints becomes 1.
+
 ## Pose Compare (Scoring)
+
+1. The two sets of normalized keypoints are compared using the weighted Euclidean distance.
+2. Map the distance into out-of-ten score by setting the score to 10 if the distance is 0 and to 0 if the distance equal to the distance between exercise keypoints and all (0,0)'s keypoints.
+3. The mapping is not linear to increase the range of score in case the distance is close.
 
 ## Integrate with GUI
 (Te)
