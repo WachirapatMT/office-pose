@@ -11,11 +11,11 @@
    - `--resolution=<resolution>` - define resolution value in range 0-1 (default: 0.4)
 
 # Project Description
-
+(Te)
 what
 
 # Why is it interesting
-
+(Te)
 why
 
 # Technical Challenges
@@ -70,6 +70,7 @@ Physio Pose is an application that help people do exercises by provide instant f
 ## Pose Compare (Scoring)
 
 ## Integrate with GUI
+(Te)
 
 # Results
 
