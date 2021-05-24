@@ -99,6 +99,10 @@ Physio Pose is an application that help people do exercises by provide instant f
 | Exercise selection window (free play mode) | ![Free Play Modal](https://github.com/WachirapatMT/Office_Pose/blob/main/gui_images/free%20play%20mode.jpg?raw=true) |
 | Exercise page                              | ![Exercise Page](https://github.com/WachirapatMT/Office_Pose/blob/main/gui_images/exercise%20page.jpg?raw=true)      |
 
+### Demo
+
+[![Office Pose Demo](https://img.youtube.com/vi/bO1u5aaBY-o/0.jpg)](https://youtu.be/bO1u5aaBY-o)
+
 # Limitations
 
 ### Processing power
@@ -119,3 +123,10 @@ The application required a user to do exercises in a wide space where the camera
 - **Specifying bad keypoints** so that users know which parts of the pose are needed to be corrected.
 - **Handling image rotation by using linear tranformation** since users' camera might not be set straight which affects the exercise score.
 - **Handling undetected keypoins using 3D pose estimation** so that exercise image with missing body parts such as hand behind the head can be used in the application.
+
+# Team Member
+
+- 6131022721 Borvornwit Limpawitayakul
+- 6131040021 Wachirapat Manorat
+- 6131048021 Siratish Sakpiboonchit
+- 6131314021 Techid Janphaka
