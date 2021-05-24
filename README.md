@@ -57,7 +57,7 @@ Physio Pose is an application that help people do exercises by provide instant f
 
 1. Choose an exercise image from the internet
 2. Use `visualise_image.py` to detect keypoints from the image
-3. Put keypoint coordinates in `exercise.py` and define the weight of each keypoint to be used in the scoring step. Each keypoint specified in this file consist of 3 elements: x coordinate, y coordinate, and weight.
+3. Put keypoint coordinates in `exercise.py` and define the weight of each keypoint to be used in the scoring step. Each keypoint specified in this file consist of 3 elements: x coordinate, y coordinate, and weight. Use zero as weight value if the keypoints must be neglected when evaluate the correctness, for example leg keypoints will not be considered for half-body exercise.
 4. Use `flip_image.py` to flip the image if the exercise can be done from both left and right direction
 
 ## Get Inputs
