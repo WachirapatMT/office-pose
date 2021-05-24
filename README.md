@@ -11,12 +11,13 @@
    - `--resolution=<resolution>` - define resolution value in range 0-1 (default: 0.4)
 
 # Project Description
-**Office Pose** is the application that will help users to do the exercise to reduce pain from Office Syndrome symptomps. The application will let users use their camera to detect their body while doing the exercise and will evaluate the correctness of each posture.
+
+**Office Pose** is the application that will help users to do exercises to reduce pain from Office Syndrome symptoms or even prevent them from getting one. The application will let users use their camera to detect their body while doing the exercises and then evaluate the correctness of each posture.
+
 # Why is it interesting
-- It could help users to do the exercise correctly.
-- It makes office syndrome exercises fun
-- It leads to exploring existing frameworks
-- It leads to studying about pose keypoints extraction and comparison mechanism
+
+- Nowadays, people spend most of their time sitting in front of a computer which eventually cause the Office Syndrome. Doing exercises can help prevent them from being suffer from the syndrome, but it is not easy to correctly do the exercise. Moreover, doing the exercise incorrectly might lead to other injuries. To solve the problem, the application were developed in order to help users do the exercise correctly and to let users do office syndrome exercises with more fun.
+- Regarding the developer team, this project also leads to exploring existing frameworks as well as studying about pose keypoints extraction and comparison methods.
 
 # Technical Challenges
 
@@ -56,7 +57,7 @@ Physio Pose is an application that help people do exercises by provide instant f
 
 1. Choose an exercise image from the internet
 2. Use `visualise_image.py` to detect keypoints from the image
-3. Put keypoint coordinates in `exercise.py` and define the weight of each keypoint to be used in the scoring step.
+3. Put keypoint coordinates in `exercise.py` and define the weight of each keypoint to be used in the scoring step. Each keypoint specified in this file consist of 3 elements: x coordinate, y coordinate, and weight.
 4. Use `flip_image.py` to flip the image if the exercise can be done from both left and right direction
 
 ## Get Inputs
@@ -67,19 +68,21 @@ Physio Pose is an application that help people do exercises by provide instant f
 
 ## Normalize Keypoints
 
-1. All the keypoints are translated such that the nose keypoint becomes the origin of the coordinate system.
-2. The keypoints are scaled such that the distance between the left shoulder and right shoulder keypoints becomes 1.
+1. All the keypoints are translated such that the nose keypoint becomes the origin of the coordinate system. This step is done by subtract nose keypoint coordinate values from every keypoint.
+2. For x-axis scaling operation, all x keypoints are divide by the distance between left and right shoulder keypoint so that the distance between the left shoulder and right shoulder keypoints becomes 1. Regarding y-axis, all y keypoints are divided by the distance between shoulder and hip and then multiplied by 2 in order to preserve the normal human body ratio of the skeleton.
 3. In case of side pose exercise, the keypoints are scaled such that the distance between the shoulder and hip keypoints becomes 1.
 
 ## Pose Compare (Scoring)
 
-1. The two sets of normalized keypoints are compared using the weighted Euclidean distance.
-2. Map the distance into out-of-ten score by setting the score to 10 if the distance is 0 and to 0 if the distance equal to the distance between exercise keypoints and all (0,0)'s keypoints.
+1. After the exercise keypoints and user pose keypoints were normalized, the two sets of normalized keypoints are compared using the weighted Euclidean distance. Each keypoint's weight were specified manually in the Prepare Exercises step.
+2. Transform the euclidean distance value into out-of-ten score by setting the score to 10 if the distance is 0 and to 0 if the distance equal to the distance between exercise keypoints and all (0,0)'s keypoints.
 3. The mapping is not linear to increase the range of score in case the distance is close.
+4. If a user can do the pose correctly to the point that the score exceeds 7, the 5-second timer will start to countdown. The user will finish an exercise after maintaining the score to be more than 7 for 5 seconds.
 
 ## Integrate with GUI
+
 1. The application uses TKinter framework to help building the GUI.
-3. There is a single thread that will run OpenPifPaf backend parallelly to prevent application from blocking.
+2. There is a single thread that will run OpenPifPaf backend parallelly to prevent application from blocking.
 
 # Results
 
@@ -89,11 +92,12 @@ Physio Pose is an application that help people do exercises by provide instant f
 - **Free Play mode** - do only one exercise
 
 ### Example of the application GUI
-|  GUI components   | GUI images |
-|-------------------|-----------|
-| Main page |![Main Page](https://github.com/WachirapatMT/Office_Pose/blob/main/gui_images/main%20page.jpg?raw=true)|
-|Exercise selection window (free play mode)|![Free Play Modal](https://github.com/WachirapatMT/Office_Pose/blob/main/gui_images/free%20play%20mode.jpg?raw=true)|
-Exercise page|![Exercise Page](https://github.com/WachirapatMT/Office_Pose/blob/main/gui_images/exercise%20page.jpg?raw=true)|
+
+| GUI components                             | GUI images                                                                                                           |
+| ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------- |
+| Main page                                  | ![Main Page](https://github.com/WachirapatMT/Office_Pose/blob/main/gui_images/main%20page.jpg?raw=true)              |
+| Exercise selection window (free play mode) | ![Free Play Modal](https://github.com/WachirapatMT/Office_Pose/blob/main/gui_images/free%20play%20mode.jpg?raw=true) |
+| Exercise page                              | ![Exercise Page](https://github.com/WachirapatMT/Office_Pose/blob/main/gui_images/exercise%20page.jpg?raw=true)      |
 
 # Limitations
 
