@@ -11,12 +11,12 @@
    - `--resolution=<resolution>` - define resolution value in range 0-1 (default: 0.4)
 
 # Project Description
-(Te)
-what
-
+**Office Pose** is the application that will help users to do the exercise to reduce pain from Office Syndrome symptomps. The application will let users use their camera to detect their body while doing the exercise and will evaluate the correctness of each posture.
 # Why is it interesting
-(Te)
-why
+- It could help users to do the exercise correctly.
+- It makes office syndrome exercises fun
+- It leads to exploring existing frameworks
+- It leads to studying about pose keypoints extraction and comparison mechanism
 
 # Technical Challenges
 
@@ -78,7 +78,8 @@ Physio Pose is an application that help people do exercises by provide instant f
 3. The mapping is not linear to increase the range of score in case the distance is close.
 
 ## Integrate with GUI
-(Te)
+1. The application uses TKinter framework to help building the GUI.
+3. There is a single thread that will run OpenPifPaf backend parallelly to prevent application from blocking.
 
 # Results
 
